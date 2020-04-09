@@ -40,11 +40,29 @@ const typeDefs = gql`
     author: String!
   }
 
+  interface IBook {
+    title: String
+    author: String
+  }
+
+  type TextBook implements IBook {
+    title: String
+    author: String
+    class: OddScalarType
+  }
+  
+  type ColoringBook implements IBook {
+    title: String
+    author: String
+    color: AllowedColor
+  }
+
   # The "Query" type is special: it lists all of the available queries that
   # clients can execute, along with the return type for each. In this
   # case, the "books" query returns an array of zero or more Books (defined above).
   type Query {
     books: [Book]
+    schoolBooks: [IBook]
     foos: [Foo]
     colors: [AllowedColor]
     colorValue(color: AllowedColor): Int
@@ -57,6 +75,24 @@ const typeDefs = gql`
     addBook(title: String, author: String): Book
   }
 `;
+
+const schoolBooks = [
+  {
+    title: 'Text Book One',
+    author: 'author one',
+    class: 1
+  },
+  {
+    title: 'Color Book One',
+    author: 'author two',
+    color: 'RED'
+  },
+  {
+    title: 'Color Book Two',
+    author: 'author three',
+    color: 'GREEN'
+  }
+];
 
 const books = [
   {
@@ -90,10 +126,24 @@ const colors = [
 const resolvers = {
   // map data type from outside to insde the graphql
   OddScalarType: OddType,
+  IBook: {
+    __resolveType(book, context, info){
+      if(book.class){
+        return 'TextBook';
+      }
+
+      if(book.color){
+        return 'ColoringBook';
+      }
+
+      return null;
+    },
+  },
 
   //
   Query: {
     books: () => books,
+    schoolBooks: () => schoolBooks,
     foos: () => foos,
     colors: () => colors,
     colorValue: (_, args) => {
