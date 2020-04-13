@@ -12,7 +12,7 @@ type Person {
     ID: ID!
     Username: String!
     Name: String!
-    DOB: Date!
+    DOB: Date
     Address: String
     PersonType: PersonType!
 }
